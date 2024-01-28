@@ -1,0 +1,28 @@
+{
+    "name": "redsquirrelstudio/laravel-backpack-export-operation",
+    "description": "An operation to make configurable exports for your CRUDs using the Backpack api you know and love",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lewis Raggett",
+            "email": "lewisraggett17@gmail.com",
+            "homepage": "https://github.com/redsquirrelstudio"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RedSquirrelStudio\\LaravelBackpackExportOperation\\": "src/"
+        }
+    },
+    "require": {
+        "backpack/crud": "^6.0",
+        "maatwebsite/excel": "^3.1"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RedSquirrelStudio\\LaravelBackpackExportOperation\\Providers\\ExportOperationProvider"
+            ]
+        }
+    }
+}
