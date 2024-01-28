@@ -69,7 +69,7 @@ This will also install [```maatwebsite/excel```][link-laravel-excel] if it's not
 
 If you would like to add the option to export PDFs, you should also install dompdf:
 ```bash
-composer remove dompdf/dompdf
+composer require dompdf/dompdf
 ```
 
 **Step 3. (Optional)**
