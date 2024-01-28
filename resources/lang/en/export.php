@@ -16,4 +16,8 @@ return [
     'xlsx' => 'XLSX',
     'ods' => 'ODS',
     'pdf' => 'PDF',
+    'your_export_is_being_generated' => 'Your Export is being generated, please wait...',
+    'your_export_is_complete' => 'Your Export is complete. It will be automatically downloaded, if not, click the button below.',
+    'click_to_download' => 'Click here to download your Export',
+    'please_include_at_least_one' => 'Please include at least one column to export'
 ];

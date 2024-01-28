@@ -13,7 +13,7 @@ return [
     'disk' => env('FILESYSTEM_DISK', 'local'),
 
     //Path to store uploaded export files
-    'path' => env('BACKPACK_IMPORT_FILE_PATH', 'imports'),
+    'path' => env('BACKPACK_EXPORT_FILE_PATH', 'exports'),
 
     //Queue to dispatch export jobs to
     'queue' => env('QUEUE_CONNECTION', 'sync'),

@@ -2,12 +2,19 @@
 
 namespace RedSquirrelStudio\LaravelBackpackExportOperation;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Excel as BaseExcel;
+use Maatwebsite\Excel\Facades\Excel;
+use RedSquirrelStudio\LaravelBackpackExportOperation\Exports\CrudExport;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 trait ExportOperation
 {
@@ -30,6 +37,30 @@ trait ExportOperation
         Route::post($segment . '/export', [
             'as' => $routeName . '.export',
             'uses' => $controller . '@createExport',
+            'operation' => 'export',
+        ]);
+
+        Route::get($segment . '/export/{id}/process', [
+            'as' => $routeName . '.process',
+            'uses' => $controller . '@processExport',
+            'operation' => 'export',
+        ]);
+
+        Route::post($segment . '/export/{id}/start', [
+            'as' => $routeName . '.start',
+            'uses' => $controller . '@startExport',
+            'operation' => 'export',
+        ]);
+
+        Route::get($segment . '/export/{id}/check', [
+            'as' => $routeName . '.check',
+            'uses' => $controller . '@checkExport',
+            'operation' => 'export',
+        ]);
+
+        Route::get($segment . '/export/{id}/download', [
+            'as' => $routeName . '.download',
+            'uses' => $controller . '@downloadExport',
             'operation' => 'export',
         ]);
     }
@@ -55,7 +86,7 @@ trait ExportOperation
      */
     public function setupExport(): View
     {
-        $this->crud->hasAccessOrFail('import');
+        $this->crud->hasAccessOrFail('export');
 
         $this->data['crud'] = $this->crud;
         $this->data['title'] = CRUD::getTitle() ?? __('export-operation::export.export', [
@@ -94,6 +125,8 @@ trait ExportOperation
      */
     public function createExport(Request $request): RedirectResponse
     {
+        $this->crud->hasAccessOrFail('export');
+
         $validation_rules = [
             'file_type' => 'required:in:csv,xls,xlsx,ods,pdf'
         ];
@@ -106,12 +139,14 @@ trait ExportOperation
         $config = [];
         foreach ($this->crud->columns() as $column) {
             if ((int)$request->get('include_' . $column['name']) === 1) {
-                $config[] = collect($column)->filter(
-                    fn($value, $key) => in_array($key, [
-                            'name', 'label', 'type', 'options', 'separator', 'multiple',
-                        ]
-                    ))->toArray();
+                $config[] = $column;
             }
+        }
+
+        if (count($config) === 0){
+            return redirect($this->crud->route.'/export')->withErrors([
+                'export' => __('export-operation::export.please_include_at_least_one'),
+            ]);
         }
 
         $log_model = config('backpack.operations.export.export_log_model');
@@ -119,11 +154,108 @@ trait ExportOperation
             'user_id' => backpack_user()->id,
             'file_type' => $request->get('file_type'),
             'disk' => config('backpack.operations.export.disk'),
-            'model' => $this->crud->model,
+            'model' => get_class($this->crud->model),
             'config' => $config,
         ]);
 
-        return redirect($this->crud->route.'/'.$log->id.'/process');
+        return redirect($this->crud->route . '/export/' . $log->id . '/process');
     }
 
+
+    /**
+     * @param int $id
+     * @return View
+     */
+    public function processExport(int $id): View
+    {
+        $this->crud->hasAccessOrFail('export');
+        $log_model = config('backpack.operations.export.export_log_model');
+        $log = $log_model::find($id);
+
+        if (!$log) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        $this->data['crud'] = $this->crud;
+        $this->data['title'] = CRUD::getTitle() ?? __('export-operation::export.export', [
+            'entity' => $this->crud->entity_name_plural
+        ]);
+        $this->data['entry'] = $log;
+
+        return view('export-operation::process-export', $this->data);
+    }
+
+    /**
+     * @param int $id
+     * @return Response
+     */
+    public function startExport(int $id): Response
+    {
+        $this->crud->hasAccessOrFail('export');
+        $log_model = config('backpack.operations.export.export_log_model');
+        $log = $log_model::find($id);
+
+        if (!$log) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        if (is_null($log->started_at)) {
+            $disk = $log->disk;
+            $file_name = strtolower(__('export-operation::export.export')) . '_' .
+                strtolower($this->crud->entity_name_plural) . '_' .
+                Carbon::now()->format('d-m-y-H-i-s') . '_' .
+                Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
+            $file_path = config('backpack.operations.export.path') . '/' . $file_name;
+
+            $log->file_path = $file_path;
+            $log->started_at = Carbon::now();
+            $log->save();
+
+            Excel::store(new CrudExport($log->id), $file_path, $disk);
+
+            $log->completed_at = Carbon::now();
+            $log->save();
+        }
+
+        return response([
+            'success' => true,
+        ]);
+    }
+
+    /**
+     * @param int $id
+     * @return Response
+     */
+    public function checkExport(int $id): Response
+    {
+        $this->crud->hasAccessOrFail('export');
+        $log_model = config('backpack.operations.export.export_log_model');
+        $log = $log_model::find($id);
+
+        if (!$log) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+        $exists = $log->file_path && Storage::disk($log->disk)->exists($log->file_path);
+        return response([
+            'complete' => $exists,
+            'file_name' => $log->file_path
+        ]);
+    }
+
+    /**
+     * @param int $id
+     * @return StreamedResponse
+     */
+    public function downloadExport(int $id): StreamedResponse
+    {
+        $this->crud->hasAccessOrFail('export');
+        $log_model = config('backpack.operations.export.export_log_model');
+        $log = $log_model::find($id);
+
+        if (!$log) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return Storage::disk($log->disk)->download($log->file_path);
+    }
 }

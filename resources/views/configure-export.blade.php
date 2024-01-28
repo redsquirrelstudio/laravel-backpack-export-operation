@@ -153,7 +153,6 @@
                 include_fields.forEach(field => field.value = 0);
             });
         })
-
     </script>
 @endpush
 
