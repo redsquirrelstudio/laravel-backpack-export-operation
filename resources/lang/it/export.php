@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => 'La tua esportazione è completa. Verrà scaricata automaticamente, se non lo è, clicca sul pulsante qui sotto.',
     'click_to_download' => 'Clicca qui per scaricare la tua esportazione',
     'please_include_at_least_one' => 'Per favore, includi almeno una colonna da esportare',
+    'your_export_will_be_processed' => 'Grazie, la tua esportazione verrà elaborata in background',
 ];

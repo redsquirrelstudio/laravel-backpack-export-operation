@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => 'エクスポートが完了しました。自動的にダウンロードされない場合は、以下のボタンをクリックしてください。',
     'click_to_download' => 'エクスポートをダウンロードするにはこちらをクリック',
     'please_include_at_least_one' => '少なくとも1つの列をエクスポートに含めてください',
+    'your_export_will_be_processed' => 'ありがとうございます。エクスポートはバックグラウンドで処理されます',
 ];

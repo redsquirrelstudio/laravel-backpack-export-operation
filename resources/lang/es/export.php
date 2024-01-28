@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => 'Su exportación está completa. Se descargará automáticamente, si no, haga clic en el botón a continuación.',
     'click_to_download' => 'Haga clic aquí para descargar su exportación',
     'please_include_at_least_one' => 'Por favor, incluya al menos una columna para exportar',
+    'your_export_will_be_processed' => 'Gracias, su exportación se procesará en segundo plano',
 ];

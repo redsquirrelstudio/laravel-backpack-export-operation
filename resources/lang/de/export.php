@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => 'Ihr Export ist abgeschlossen. Er wird automatisch heruntergeladen oder klicken Sie auf den unten stehenden Button.',
     'click_to_download' => 'Klicken Sie hier, um Ihren Export herunterzuladen',
     'please_include_at_least_one' => 'Bitte mindestens eine Spalte zum Exportieren auswählen',
+    'your_export_will_be_processed' => 'Vielen Dank, Ihr Export wird im Hintergrund verarbeitet',
 ];

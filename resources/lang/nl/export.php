@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => 'Uw export is voltooid. Het wordt automatisch gedownload, zo niet, klik op de knop hieronder.',
     'click_to_download' => 'Klik hier om uw export te downloaden',
     'please_include_at_least_one' => 'Voeg ten minste één kolom toe om te exporteren',
+    'your_export_will_be_processed' => 'Dank je, je export wordt verwerkt op de achtergrond',
 ];

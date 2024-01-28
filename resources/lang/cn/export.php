@@ -20,4 +20,5 @@ return [
     'your_export_is_complete' => '您的导出已完成。如果没有自动下载，请点击下方按钮。',
     'click_to_download' => '点击这里下载您的导出',
     'please_include_at_least_one' => '请至少包含一列进行导出',
+    'your_export_will_be_processed' => '谢谢，您的导出将在后台处理',
 ];

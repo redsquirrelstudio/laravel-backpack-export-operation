@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Excel as BaseExcel;
 use Maatwebsite\Excel\Facades\Excel;
 use RedSquirrelStudio\LaravelBackpackExportOperation\Exports\CrudExport;
+use RedSquirrelStudio\LaravelBackpackImportOperation\Imports\QueuedCrudImport;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 trait ExportOperation
@@ -80,6 +81,26 @@ trait ExportOperation
             CRUD::addButton('top', 'export', 'view', 'export-operation::buttons.export_button');
         });
     }
+    
+    /**
+     * Queue exports to be handled in the background
+     * @return void
+     */
+    public function queueExport(): void
+    {
+        CRUD::setOperationSetting('queueExport', true);
+    }
+
+    /**
+     * Set the message that should be displayed to the user after they
+     * queue a new export
+     * @param string $message
+     * @return void
+     */
+    public function setQueueMessage(string $message): void
+    {
+        CRUD::setOperationSetting('exportQueueMessage', $message);
+    }
 
     /**
      * @return View
@@ -104,8 +125,8 @@ trait ExportOperation
             $file_formats[BaseExcel::DOMPDF] = __('export-operation::export.pdf');
         }
 
-        $this->data['columns'] = $this->crud->columns();
 
+        $this->data['columns'] = $this->crud->columns();
 
         CRUD::addField([
             'name' => 'file_type',
@@ -157,6 +178,24 @@ trait ExportOperation
             'model' => get_class($this->crud->model),
             'config' => $config,
         ]);
+
+        $export_should_queue = $this->crud->getOperationSetting('queueExport', 'export') ?? false;
+        if ($export_should_queue){
+            $file_name = strtolower(__('export-operation::export.export')) . '_' .
+                strtolower($this->crud->entity_name_plural) . '_' .
+                Carbon::now()->format('d-m-y-H-i-s') . '_' .
+                Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
+            $file_path = config('backpack.operations.export.path') . '/' . $file_name;
+
+            $log->file_path = $file_path;
+            $log->started_at = Carbon::now();
+            $log->save();
+
+            (new QueuedCrudImport($log->id))->queue($log->file_path, $log->disk);
+            $message = $this->crud->getOperationSetting('exportQueueMessage', 'export') ?? __('export-operation::export.your_export_will_be_processed');
+            \Alert::add('success', $message)->flash();
+            return redirect($this->crud->route);
+        }
 
         return redirect($this->crud->route . '/export/' . $log->id . '/process');
     }
@@ -212,9 +251,6 @@ trait ExportOperation
             $log->save();
 
             Excel::store(new CrudExport($log->id), $file_path, $disk);
-
-            $log->completed_at = Carbon::now();
-            $log->save();
         }
 
         return response([
