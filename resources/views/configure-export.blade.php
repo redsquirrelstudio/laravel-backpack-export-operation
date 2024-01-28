@@ -102,16 +102,22 @@
                                                 <label class="d-none" for="include_{{ $column['name'] }}">
                                                     @lang('import-operation::import.include_in_export')
                                                 </label>
-                                                <select {{ $config_disabled ? 'readonly' : '' }} id="include_{{ $column['name'] }}"
-                                                        name="include_{{ $column['name'] }}"
-                                                        class="form-control include-field">
-                                                    <option value="1">
-                                                        @lang('export-operation::export.include')
-                                                    </option>
-                                                    <option value="0">
-                                                        @lang('export-operation::export.exclude')
-                                                    </option>
-                                                </select>
+                                                @if($config_disabled)
+                                                    <input readonly id="include_{{ $column['name'] }}"
+                                                           name="include_{{ $column['name'] }}"
+                                                           type="text" value="1">
+                                                @else
+                                                    <select id="include_{{ $column['name'] }}"
+                                                            name="include_{{ $column['name'] }}"
+                                                            class="form-control include-field">
+                                                        <option value="1">
+                                                            @lang('export-operation::export.include')
+                                                        </option>
+                                                        <option value="0">
+                                                            @lang('export-operation::export.exclude')
+                                                        </option>
+                                                    </select>
+                                                @endif
                                             </div>
 
                                         </td>
