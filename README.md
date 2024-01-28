@@ -20,7 +20,9 @@ and allows you as the developer to:
 If you're looking for a great team of developers to handle some Backpack/Laravel development for you, drop us a line
 at [Sprechen][link-sprechen]
 
-![Screenshot of the operation's configuration screen](https://raw.githubusercontent.com/redsquirrelstudio/laravel-backpack-export-operation/dev/assets/screenshot.jpg?raw=true)
+**Also need imports for your CRUD? Check out [redsquirrelstudio/laravel-backpack-import-operation](https://github.com/redsquirrelstudio/laravel-backpack-import-operation)**
+
+![Screenshot of the operation's configuration screen](https://raw.githubusercontent.com/redsquirrelstudio/laravel-backpack-export-operation/dev/assets/screenshot.png?raw=true)
 
 Powering the exports in the background is [```maatwebsite/excel```][link-laravel-excel]
 
