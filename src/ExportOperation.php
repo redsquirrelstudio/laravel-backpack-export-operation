@@ -81,7 +81,17 @@ trait ExportOperation
             CRUD::addButton('top', 'export', 'view', 'export-operation::buttons.export_button');
         });
     }
-    
+
+    /**
+     * Disable the user configuration step, always export as per the dev config
+     * @return void
+     */
+    public function disableUserConfiguration(): void
+    {
+        CRUD::setOperationSetting('disableUserConfiguration', true);
+    }
+
+
     /**
      * Queue exports to be handled in the background
      * @return void
@@ -127,6 +137,7 @@ trait ExportOperation
 
 
         $this->data['columns'] = $this->crud->columns();
+        $this->data['config_disabled'] = $this->crud->getOperationSetting('disableUserConfiguration', 'export') ?? false;
 
         CRUD::addField([
             'name' => 'file_type',

@@ -58,7 +58,7 @@
                     @include('crud::form_content', [ 'fields' => $crud->fields(), 'action' => 'create' ])
                 @endif
 
-                <div class="card mt-2">
+                <div class="{{ $config_disabled ? 'd-none' : '' }} card mt-2">
                     <div class="card-body row">
                         <div class="col-md-12 mb-4 d-flex justify-content-end">
                             <button type="button" id="btnIncludeAll"
@@ -102,7 +102,7 @@
                                                 <label class="d-none" for="include_{{ $column['name'] }}">
                                                     @lang('import-operation::import.include_in_export')
                                                 </label>
-                                                <select id="include_{{ $column['name'] }}"
+                                                <select {{ $config_disabled ? 'readonly' : '' }} id="include_{{ $column['name'] }}"
                                                         name="include_{{ $column['name'] }}"
                                                         class="form-control include-field">
                                                     <option value="1">
