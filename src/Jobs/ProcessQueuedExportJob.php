@@ -35,4 +35,12 @@ class ProcessQueuedExportJob implements ShouldQueue
     {
         Excel::store(new CrudExport($this->export_log_id), $this->file_path, $this->disk);
     }
+
+    /**
+     * @return int
+     */
+    public function getExportLogId(): int
+    {
+        return $this->export_log_id;
+    }
 }

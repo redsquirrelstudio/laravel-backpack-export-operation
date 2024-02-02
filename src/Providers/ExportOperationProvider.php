@@ -2,10 +2,12 @@
 
 namespace RedSquirrelStudio\LaravelBackpackExportOperation\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
-use RedSquirrelStudio\LaravelBackpackImportOperation\Console\Commands\ImportColumnBackpackCommand;
+use RedSquirrelStudio\LaravelBackpackExportOperation\Events\ExportCompleteEvent;
+use RedSquirrelStudio\LaravelBackpackExportOperation\Jobs\ProcessQueuedExportJob;
 
 class ExportOperationProvider extends ServiceProvider
 {
@@ -16,6 +18,19 @@ class ExportOperationProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Queue::after(function (JobProcessed $event) {
+            $job = $event->job;
+            if ($job instanceof ProcessQueuedExportJob){
+                $export_log_id = unserialize($event->job->payload()['data']['command'])->getExportLogId();
+                $log_model = config('backpack.operations.export.export_log_model');
+                $log = $log_model::find($export_log_id);
+                $log->completed_at = Carbon::now();
+                $log->save();
+
+                ExportCompleteEvent::dispatch($log);
+            }
+        });
+
         //Load Translations
         if (is_dir(resource_path('lang/vendor/backpack/import-operation'))){
             $this->loadTranslationsFrom(resource_path('lang/vendor/backpack/export-operation'), 'export-operation');
