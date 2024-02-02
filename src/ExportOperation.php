@@ -202,7 +202,7 @@ trait ExportOperation
             $log->started_at = Carbon::now();
             $log->save();
 
-            ProcessQueuedExportJob::dispatch($log->id, $file_path, $disk);
+            ProcessQueuedExportJob::dispatch($log->id, $file_path, $log->disk);
             $message = $this->crud->getOperationSetting('exportQueueMessage', 'export') ?? __('export-operation::export.your_export_will_be_processed');
             \Alert::add('success', $message)->flash();
             return redirect($this->crud->route);
@@ -256,7 +256,6 @@ trait ExportOperation
                 Carbon::now()->format('d-m-y-H-i-s') . '_' .
                 Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
             $file_path = config('backpack.operations.export.path') . '/' . $file_name;
-
             $log->file_path = $file_path;
             $log->started_at = Carbon::now();
             $log->save();
