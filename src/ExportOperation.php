@@ -193,7 +193,7 @@ trait ExportOperation
         $export_should_queue = $this->crud->getOperationSetting('queueExport', 'export') ?? false;
         if ($export_should_queue){
             $file_name = strtolower(__('export-operation::export.export')) . '_' .
-                strtolower($this->crud->entity_name_plural) . '_' .
+                str_replace(' ', '_', strtolower($this->crud->entity_name_plural))  . '_' .
                 Carbon::now()->format('d-m-y-H-i-s') . '_' .
                 Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
             $file_path = config('backpack.operations.export.path') . '/' . $file_name;
@@ -252,7 +252,7 @@ trait ExportOperation
         if (is_null($log->started_at)) {
             $disk = $log->disk;
             $file_name = strtolower(__('export-operation::export.export')) . '_' .
-                strtolower($this->crud->entity_name_plural) . '_' .
+                str_replace(' ', '_', strtolower($this->crud->entity_name_plural)) . '_' .
                 Carbon::now()->format('d-m-y-H-i-s') . '_' .
                 Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
             $file_path = config('backpack.operations.export.path') . '/' . $file_name;
