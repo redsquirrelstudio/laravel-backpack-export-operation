@@ -46,18 +46,4 @@ class CrudExport implements FromView, ShouldAutoSize, WithEvents
     {
         return $this->export_log;
     }
-
-    public function registerEvents(): array
-    {
-        return [
-            AfterSheet::class => function(AfterSheet $event){
-                $exporter = $event->getConcernable();
-                $log = $exporter->getExportLog();
-                $log->completed_at = Carbon::now();
-                $log->save();
-
-                ExportCompleteEvent::dispatch($log);
-            }
-        ];
-    }
 }

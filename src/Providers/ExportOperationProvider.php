@@ -2,6 +2,8 @@
 
 namespace RedSquirrelStudio\LaravelBackpackExportOperation\Providers;
 
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use RedSquirrelStudio\LaravelBackpackImportOperation\Console\Commands\ImportColumnBackpackCommand;
 
@@ -76,6 +78,7 @@ class ExportOperationProvider extends ServiceProvider
      */
     public function register(): void
     {
+
     }
 
 }

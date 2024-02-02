@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Excel as BaseExcel;
 use Maatwebsite\Excel\Facades\Excel;
 use RedSquirrelStudio\LaravelBackpackExportOperation\Exports\CrudExport;
-use RedSquirrelStudio\LaravelBackpackExportOperation\Exports\QueuedCrudExport;
+use RedSquirrelStudio\LaravelBackpackExportOperation\Jobs\ProcessQueuedExportJob;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 trait ExportOperation
@@ -202,7 +202,7 @@ trait ExportOperation
             $log->started_at = Carbon::now();
             $log->save();
 
-            (new QueuedCrudExport($log->id))->queue($log->file_path, $log->disk);
+            ProcessQueuedExportJob::dispatch($log->id, $file_path, $disk);
             $message = $this->crud->getOperationSetting('exportQueueMessage', 'export') ?? __('export-operation::export.your_export_will_be_processed');
             \Alert::add('success', $message)->flash();
             return redirect($this->crud->route);
