@@ -2,16 +2,13 @@
 
 namespace RedSquirrelStudio\LaravelBackpackExportOperation\Exports;
 
-use Carbon\Carbon;
+
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
-use RedSquirrelStudio\LaravelBackpackExportOperation\Events\ExportCompleteEvent;
 
-class CrudExport implements FromView, ShouldAutoSize, WithEvents
+class CrudExport implements FromView, ShouldAutoSize
 {
     protected $export_log;
 
