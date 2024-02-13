@@ -130,7 +130,12 @@
                 </div>
 
                 {{-- This makes sure that all field assets are loaded. --}}
-                <div class="d-none" id="parentLoadedAssets">{{ json_encode(Basset::loaded()) }}</div>
+                @if(class_exists(\Backpack\Basset\Facades\Basset::class))
+                    <div class="d-none" id="parentLoadedAssets">{{ json_encode(Basset::loaded()) }}</div>
+                @else
+                    <div class="d-none" id="parentLoadedAssets">{{ json_encode(Assets::loaded()) }}</div>
+                @endif
+
 
                 <button title="@lang('export-operation::export.confirm_export')"
                         class="btn btn-success">
