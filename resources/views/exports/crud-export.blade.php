@@ -26,7 +26,10 @@
                             $columnPaths[] = 'crud::columns.text';
                         }
                     @endphp
-                    @includeFirst($columnPaths)
+                    @isset($columnPaths[0])
+                        {{ strip_tags(include($columnPaths[0])) }}
+                    @endisset
+
                 </td>
             @endforeach
         </tr>
