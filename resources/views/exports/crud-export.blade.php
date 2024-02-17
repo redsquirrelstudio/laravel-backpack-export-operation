@@ -32,7 +32,7 @@
                             'column' => $column,
                             'crud' => $crud,
                         ]);
-                        $escaped_content = strip_tags($crud);
+                        $escaped_content = strip_tags($content);
                     @endphp
                     {{ $escaped_content }}
                 </td>
