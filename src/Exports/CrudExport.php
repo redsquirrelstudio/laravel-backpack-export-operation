@@ -2,7 +2,6 @@
 
 namespace RedSquirrelStudio\LaravelBackpackExportOperation\Exports;
 
-
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\FromView;
