@@ -25,11 +25,16 @@
                         if (!in_array('crud::columns.text', $columnPaths)) {
                             $columnPaths[] = 'crud::columns.text';
                         }
-                    @endphp
-                    @isset($columnPaths[0])
-                        {{ strip_tags(include($columnPaths[0])) }}
-                    @endisset
 
+                        $columnPath = collect($columnPaths)->filter(fn($path) => view()->exists($path))->first();
+                        $content = view($columnPath, [
+                            'entry' => $entry,
+                            'column' => $column,
+                            'crud' => $crud,
+                        ]);
+                        $escaped_content = strip_tags($crud);
+                    @endphp
+                    {{ $escaped_content }}
                 </td>
             @endforeach
         </tr>
