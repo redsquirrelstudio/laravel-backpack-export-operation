@@ -31,6 +31,8 @@ class CrudExport implements FromView, ShouldAutoSize
         $log_model = config('backpack.operations.export.export_log_model');
         $log = $log_model::find($this->export_log->id);
 
+        CRUD::setModel($log->model);
+
         $entries = $log->model::all();
         return view('export-operation::exports.crud-export', [
             'config' => $log->config,
