@@ -30,37 +30,37 @@ trait ExportOperation
     protected function setupExportRoutes(string $segment, string $routeName, string $controller): void
     {
         Route::get($segment . '/export', [
-            'as' => $routeName . '.export',
+            'as' => $routeName . '.export.setup',
             'uses' => $controller . '@setupExport',
             'operation' => 'export',
         ]);
 
         Route::post($segment . '/export', [
-            'as' => $routeName . '.export',
+            'as' => $routeName . '.export.create',
             'uses' => $controller . '@createExport',
             'operation' => 'export',
         ]);
 
         Route::get($segment . '/export/{id}/process', [
-            'as' => $routeName . '.process',
+            'as' => $routeName . '.export.process',
             'uses' => $controller . '@processExport',
             'operation' => 'export',
         ]);
 
         Route::post($segment . '/export/{id}/start', [
-            'as' => $routeName . '.start',
+            'as' => $routeName . '.export.start',
             'uses' => $controller . '@startExport',
             'operation' => 'export',
         ]);
 
         Route::get($segment . '/export/{id}/check', [
-            'as' => $routeName . '.check',
+            'as' => $routeName . '.export.check',
             'uses' => $controller . '@checkExport',
             'operation' => 'export',
         ]);
 
         Route::get($segment . '/export/{id}/download', [
-            'as' => $routeName . '.download',
+            'as' => $routeName . '.export.download',
             'uses' => $controller . '@downloadExport',
             'operation' => 'export',
         ]);
