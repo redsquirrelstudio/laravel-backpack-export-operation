@@ -151,19 +151,15 @@
 
 @push('after_scripts')
     <script>
-        $(document).ready(() => {
-            $("#btnIncludeAll").click(e => {
-                e.preventDefault();
-                let include_fields = document.getElementsByClassName('include-field');
-                include_fields.forEach(field => field.value = 1);
-            });
+        $("#btnIncludeAll").on("click", (event) => {
+            event.preventDefault();
+            $(".include-field").val(1);
+        });
 
-            $("#btnExcludeAll").click(e => {
-                e.preventDefault();
-                let include_fields = document.getElementsByClassName('include-field');
-                include_fields.forEach(field => field.value = 0);
-            });
-        })
+        $("#btnExcludeAll").on("click", (event) => {
+            event.preventDefault();
+            $(".include-field").val(0);
+        });
     </script>
 @endpush
 
