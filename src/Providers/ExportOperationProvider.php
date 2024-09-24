@@ -34,7 +34,7 @@ class ExportOperationProvider extends ServiceProvider
         });
 
         //Load Translations
-        if (is_dir(resource_path('lang/vendor/backpack/import-operation'))) {
+        if (is_dir(resource_path('lang/vendor/backpack/export-operation'))) {
             $this->loadTranslationsFrom(resource_path('lang/vendor/backpack/export-operation'), 'export-operation');
         } else {
             $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'export-operation');
