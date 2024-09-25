@@ -27,7 +27,8 @@
 
                     event.preventDefault();
 
-                    if ($searchInput.length) { // there is a search bar
+                    // there is a search bar and it has a value
+                    if ($searchInput.length && $searchInput.val().length > 0) {
                         searchFragment = '&search[value]=' + $searchInput.val();
                     }
 

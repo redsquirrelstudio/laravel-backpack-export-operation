@@ -31,9 +31,15 @@ class CrudExport implements FromView, ShouldAutoSize
         $log = $log_model::find($this->export_log->id);
 
         $this->crud->setModel($log->model);
-        $this->applyFilters($log->config['query']);
 
-        $entries = $this->crud->getEntries();
+        // No filters
+        if (collect($log->config['query'])->count() === 0) {
+            $entries = $log->model::all();;
+        } else {
+            $this->applyFilters($log->config['query']);
+            $entries = $this->crud->getEntries();
+        }
+
         return view('export-operation::exports.crud-export', [
             'config' => $log->config,
             'entries' => $entries,
