@@ -47,7 +47,7 @@
             @include('crud::inc.grouped_errors')
 
             <form method="post"
-                  action="{{ url($crud->route.'/export') }}"
+                  action="{{ request()->fullUrlWithQuery([]) }}"
                   enctype="multipart/form-data"
             >
                 {!! csrf_field() !!}
@@ -57,6 +57,52 @@
                 @else
                     @include('crud::form_content', [ 'fields' => $crud->fields(), 'action' => 'create' ])
                 @endif
+
+                <div class="card mt-2">
+                    <div class="card-body row">
+                        <div class="form-group col-sm-12">
+                            <h6 class="p-2">
+                                <span class="font-weight-bold">{{ count(request()->query()) }}</span>
+                                @lang('export-operation::export.enabled_filters') &rarr;
+                                <span class="font-weight-bold">(~{{ $query_count_filtered }} @lang('export-operation::export.entries'))</span>
+                            </h6>
+                            <table class="table nowrap rounded card-table table-vcenter card-table shadow-xs border-xs">
+                            <tbody>
+                            <tr>
+                                <th>
+                                    @lang('export-operation::export.filters')
+                                </th>
+                                <th>
+                                    @lang('export-operation::export.values')
+                                </th>
+                            </tr>
+                            @if(collect(request()->query())->has('search'))
+                                <tr>
+                                    <td>
+                                        @lang('backpack::crud.search')
+                                    </td>
+                                    <td>
+                                        {{ request()->query()['search']['value'] }}
+                                    </td>
+                                </tr>
+                            @endif
+                            @foreach(request()->query() as $filterName => $value)
+                                @php($currentFilter = $crud->filters()->where('name', $filterName)->first())
+                                @continue(!$currentFilter || $filterName == 'search')
+                                <tr>
+                                    <td>
+                                        {{ $currentFilter->label ?? $filterName }}
+                                    </td>
+                                    <td>
+                                        {{ $currentFilter->values[$value] ?? $value }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="{{ $config_disabled ? 'd-none' : '' }} card mt-2">
                     <div class="card-body row">
@@ -100,7 +146,7 @@
                                         <td>
                                             <div class="form-group">
                                                 <label class="d-none" for="include_{{ $column['name'] }}">
-                                                    @lang('import-operation::import.include_in_export')
+                                                    @lang('export-operation::import.include_in_export')
                                                 </label>
                                                 @if($config_disabled)
                                                     <input readonly id="include_{{ $column['name'] }}"

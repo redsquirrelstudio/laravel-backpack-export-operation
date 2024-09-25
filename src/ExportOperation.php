@@ -80,6 +80,7 @@ trait ExportOperation
         CRUD::operation('list', function () {
             CRUD::addButton('top', 'export', 'view', 'export-operation::buttons.export_button');
         });
+
     }
 
     /**
@@ -148,6 +149,13 @@ trait ExportOperation
             'default' => BaseExcel::CSV
         ]);
 
+        $this->cleanRequestQueryFromInexstingFilters();
+        $this->prepareRequestQuery();
+
+        $this->data['existing_filters'] = $this->crud->getFilteredQueryCount();
+        $this->data['query_count_filtered'] = $this->crud->getFilteredQueryCount();
+        $this->data['filtered_query_total'] = $this->crud->getTotalQueryCount();
+
         return view('export-operation::configure-export', $this->data);
     }
 
@@ -168,18 +176,24 @@ trait ExportOperation
 
         $request->validate($validation_rules);
 
-        $config = [];
+        $config = [
+            'columns' => []
+        ];
         foreach ($this->crud->columns() as $column) {
             if ((int)$request->get('include_' . $column['name']) === 1) {
-                $config[] = $column;
+                $config['columns'][] = $column;
             }
         }
 
-        if (count($config) === 0){
-            return redirect($this->crud->route.'/export')->withErrors([
+        if (count($config['columns']) === 0){
+            return redirect()->to(request()->fullUrlWithQuery([]))->withErrors([
                 'export' => __('export-operation::export.please_include_at_least_one'),
             ]);
         }
+
+        // Export the query to be able to import it from a job
+        $this->cleanRequestQueryFromInexstingFilters();
+        $config['query'] = $request->query();
 
         $log_model = config('backpack.operations.export.export_log_model');
         $log = $log_model::create([
@@ -303,5 +317,29 @@ trait ExportOperation
         }
 
         return Storage::disk($log->disk)->download($log->file_path);
+    }
+
+    private function prepareRequestQuery()
+    {
+        // prepare query by applying filters
+        $this->crud->applyUnappliedFilters();
+        $this->crud->applyDatatableOrder();
+
+        // and include search value if any
+        $search = request()->input('search');
+        if ($search && $search['value'] ?? false) {
+            $this->crud->applySearchTerm($search['value']);
+        }
+    }
+
+    private function cleanRequestQueryFromInexstingFilters()
+    {
+        collect(request()->query())->each(function($value, $key) {
+            if ($key === 'search') return;
+
+            if(!$this->crud->filters()->where('name', $key)->first()) {
+                request()->remove($key);
+            }
+        });
     }
 }

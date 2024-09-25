@@ -6,7 +6,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
 class CrudExport implements FromView, ShouldAutoSize
 {
@@ -19,7 +18,7 @@ class CrudExport implements FromView, ShouldAutoSize
     public function __construct(int $export_log_id)
     {
         $log_model = config('backpack.operations.export.export_log_model');
-        $this->export_log =  $log_model::find($export_log_id);
+        $this->export_log = $log_model::find($export_log_id);
         $this->crud = app('crud');
     }
 
@@ -31,9 +30,10 @@ class CrudExport implements FromView, ShouldAutoSize
         $log_model = config('backpack.operations.export.export_log_model');
         $log = $log_model::find($this->export_log->id);
 
-        CRUD::setModel($log->model);
+        $this->crud->setModel($log->model);
+        $this->applyFilters($log->config['query']);
 
-        $entries = $log->model::all();
+        $entries = $this->crud->getEntries();
         return view('export-operation::exports.crud-export', [
             'config' => $log->config,
             'entries' => $entries,
@@ -47,5 +47,23 @@ class CrudExport implements FromView, ShouldAutoSize
     protected function getExportLog(): Model
     {
         return $this->export_log;
+    }
+
+    private function applyFilters($requestQueryFromLog)
+    {
+        $request = $this->crud->getRequest();
+        collect($requestQueryFromLog)->each(function ($value, $key) use ($request) {
+            $request->query->set($key, $value);
+        });
+
+        $this->crud->applyDatatableOrder();
+        $this->crud->filters()->each(function ($filter) {
+            $filter->apply();
+        });
+
+        $search = $request->input('search');
+        if ($search && $search['value'] ?? false) {
+            $this->crud->applySearchTerm($search['value']);
+        }
     }
 }
