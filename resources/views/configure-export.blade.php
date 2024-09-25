@@ -63,9 +63,12 @@
                         <div class="form-group col-sm-12">
                             <h6 class="p-2">
                                 <span class="font-weight-bold">{{ count(request()->query()) }}</span>
-                                @lang('export-operation::export.enabled_filters') &rarr;
-                                <span class="font-weight-bold">(~{{ $query_count_filtered }} @lang('export-operation::export.entries'))</span>
+                                @lang('export-operation::export.enabled_filters')
+                                @if(count(request()->query()) >= 1)
+                                    &rarr; <span class="font-weight-bold">(~{{ $query_count_filtered }} @lang('export-operation::export.entries'))</span>
+                                @endif
                             </h6>
+                            @if(count(request()->query()) >= 1)
                             <table class="table nowrap rounded card-table table-vcenter card-table shadow-xs border-xs">
                             <tbody>
                             <tr>
@@ -100,6 +103,11 @@
                             @endforeach
                             </tbody>
                         </table>
+                            @else
+                                <div class="p-4">
+                                    @lang('export-operation::export.no_filter')
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -185,7 +185,7 @@ trait ExportOperation
             }
         }
 
-        if (count($config['columns']) === 0){
+        if (count($config['columns']) === 0) {
             return redirect()->to(request()->fullUrlWithQuery([]))->withErrors([
                 'export' => __('export-operation::export.please_include_at_least_one'),
             ]);
@@ -205,9 +205,9 @@ trait ExportOperation
         ]);
 
         $export_should_queue = $this->crud->getOperationSetting('queueExport', 'export') ?? false;
-        if ($export_should_queue){
+        if ($export_should_queue) {
             $file_name = strtolower(__('export-operation::export.export')) . '_' .
-                str_replace(' ', '_', strtolower($this->crud->entity_name_plural))  . '_' .
+                str_replace(' ', '_', strtolower($this->crud->entity_name_plural)) . '_' .
                 Carbon::now()->format('d-m-y-H-i-s') . '_' .
                 Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
             $file_path = config('backpack.operations.export.path') . '/' . $file_name;
@@ -327,19 +327,28 @@ trait ExportOperation
 
         // and include search value if any
         $search = request()->input('search');
-        if ($search && $search['value'] ?? false) {
+        if ($search && ($search['value'] ?? false) && !empty($search['value'])) {
             $this->crud->applySearchTerm($search['value']);
         }
     }
 
     private function cleanRequestQueryFromInexstingFilters()
     {
-        collect(request()->query())->each(function($value, $key) {
-            if ($key === 'search') return;
+        $finalRequestData = collect();
+        collect(request()->all())->each(function ($value, $key) use ($finalRequestData) {
+            if ($key === 'search') {
+                if ($value['value']) {
+                    $finalRequestData->put($key, $value);
+                } else {
+                    return;
+                }
+            }
 
-            if(!$this->crud->filters()->where('name', $key)->first()) {
-                request()->remove($key);
+            if ($this->crud->filters()->where('name', $key)->first()) {
+                $finalRequestData->put($key, $value);
             }
         });
+
+        request()->replace($finalRequestData->toArray());
     }
 }

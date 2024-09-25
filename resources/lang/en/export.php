@@ -11,6 +11,7 @@ return [
     'include_in_export' => 'Include in Export',
     'confirm_export' => 'Confirm Export',
     'file_type' => 'File Type',
+    'no_filter' => 'No filter has been selected, all the table\'s will be exported !!',
     'enabled_filters' => 'Enabled Filters',
     'filters' => 'Filters',
     'entries' => 'Entries',
