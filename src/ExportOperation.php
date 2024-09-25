@@ -141,7 +141,7 @@ trait ExportOperation
         $this->data['config_disabled'] = $this->crud->getOperationSetting('disableUserConfiguration', 'export') ?? false;
 
         CRUD::addField([
-            'name' => 'file_type',
+            'name' => 'laravel_export_file_type',
             'label' => __('export-operation::export.file_type'),
             'type' => 'select_from_array',
             'options' => $file_formats,
@@ -168,7 +168,7 @@ trait ExportOperation
         $this->crud->hasAccessOrFail('export');
 
         $validation_rules = [
-            'file_type' => 'required:in:csv,xls,xlsx,ods,pdf'
+            'laravel_export_file_type' => 'required:in:csv,xls,xlsx,ods,pdf'
         ];
         foreach ($this->crud->columns() as $column) {
             $validation_rules['include_' . $column['name']] = 'required|in:0,1';
@@ -185,7 +185,7 @@ trait ExportOperation
             }
         }
 
-        if (count($config['columns']) === 0){
+        if (count($config['columns']) === 0) {
             return redirect()->to(request()->fullUrlWithQuery([]))->withErrors([
                 'export' => __('export-operation::export.please_include_at_least_one'),
             ]);
@@ -198,16 +198,16 @@ trait ExportOperation
         $log_model = config('backpack.operations.export.export_log_model');
         $log = $log_model::create([
             'user_id' => backpack_user()->id,
-            'file_type' => $request->get('file_type'),
+            'file_type' => $request->get('laravel_export_file_type'),
             'disk' => config('backpack.operations.export.disk'),
             'model' => get_class($this->crud->model),
             'config' => $config,
         ]);
 
         $export_should_queue = $this->crud->getOperationSetting('queueExport', 'export') ?? false;
-        if ($export_should_queue){
+        if ($export_should_queue) {
             $file_name = strtolower(__('export-operation::export.export')) . '_' .
-                str_replace(' ', '_', strtolower($this->crud->entity_name_plural))  . '_' .
+                str_replace(' ', '_', strtolower($this->crud->entity_name_plural)) . '_' .
                 Carbon::now()->format('d-m-y-H-i-s') . '_' .
                 Str::uuid() . '.' . strtolower($log->file_type === 'Dompdf' ? 'pdf' : $log->file_type);
             $file_path = config('backpack.operations.export.path') . '/' . $file_name;
@@ -327,19 +327,33 @@ trait ExportOperation
 
         // and include search value if any
         $search = request()->input('search');
-        if ($search && $search['value'] ?? false) {
+        if ($search && ($search['value'] ?? false) && !empty($search['value'])) {
             $this->crud->applySearchTerm($search['value']);
         }
     }
 
     private function cleanRequestQueryFromInexstingFilters()
     {
-        collect(request()->query())->each(function($value, $key) {
-            if ($key === 'search') return;
+        $finalRequestData = collect();
+        collect(request()->all())->each(function ($value, $key) use ($finalRequestData) {
+            if ($key === 'laravel_export_file_type') {
+                $finalRequestData->put($key, $value);
+                return;
+            }
 
-            if(!$this->crud->filters()->where('name', $key)->first()) {
-                request()->remove($key);
+            if ($key === 'search') {
+                if ($value['value']) {
+                    $finalRequestData->put($key, $value);
+                } else {
+                    return;
+                }
+            }
+
+            if ($this->crud->filters()->where('name', $key)->first()) {
+                $finalRequestData->put($key, $value);
             }
         });
+
+        request()->replace($finalRequestData->toArray());
     }
 }

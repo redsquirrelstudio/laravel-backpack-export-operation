@@ -34,7 +34,7 @@
                         // Closures can't be serialized and stored in the DB
                         // Then we get them directly from the $crud variable
                         if($crudColumn['type'] == 'closure' && $crudColumn['function'] instanceof \Closure) {
-                            $content = $column['value'] = $crudColumn['value'];
+                            $column['function'] = $crudColumn['function'];
                         }
 
                         $columnPath = collect($columnPaths)->filter(fn($path) => view()->exists($path))->first();
