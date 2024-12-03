@@ -59,7 +59,7 @@
                 @endif
 
                 <div class="card mt-2">
-                    <div class="card-body row">
+                    <div class="card-body row pt-3">
                         <div class="form-group col-sm-12">
                             <h6 class="p-2">
                                 <span class="font-weight-bold">{{ count(request()->query()) }}</span>
@@ -104,7 +104,7 @@
                             </tbody>
                         </table>
                             @else
-                                <div class="p-4">
+                                <div class="p-2">
                                     @lang('export-operation::export.no_filter')
                                 </div>
                             @endif
