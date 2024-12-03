@@ -8,6 +8,8 @@ Adds a configurable interface that allows your admin users to:
 
 - Export CRUD resources to multiple file formats.
 - Decide which columns they would like to export.
+- Export data based on the filters applied in the CRUD's list operation
+
 
 and allows you as the developer to:
 
@@ -345,9 +347,11 @@ Controller's setup function:
 ## Credits
 
 - [Lewis Raggett][link-me] and [The Team at Sprechen][link-sprechen]  :: Package Creator
+- [Bad-Y][link-bady] :: Export Filter Support
 - [Cristian Tabacitu][link-backpack] :: Backpack for Laravel Creator
 - [Spartner][link-laravel-excel] :: Laravel Excel Creator
 - [DomPDF][link-dompdf] :: DOMPDF Creator
+
 
 ## License
 
@@ -380,3 +384,5 @@ MIT. Please see the [license file](license.md) for more information.
 [link-sprechen]: https://sprechen.co.uk
 
 [link-dompdf]: https://github.com/dompdf/dompdf
+
+[link-bady]: https://github.com/Bad-Y
